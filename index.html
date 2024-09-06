@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pac-Man Simples</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+        }
+        canvas {
+            border: 1px solid #fff;
+        }
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        .button {
+            width: 60px;
+            height: 60px;
+            background: #444;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            margin: 5px;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        .button:active {
+            background: #666;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <div class="controls">
+        <button class="button" onclick="move('left')">←</button>
+        <button class="button" onclick="move('up')">↑</button>
+        <button class="button" onclick="move('right')">→</button>
+        <button class="button" onclick="move('down')">↓</button>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const pacMan = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            size: 30,
+            speed: 5,
+            dx: 0,
+            dy: 0,
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0.2 * Math.PI, 1.8 * Math.PI);
+                ctx.lineTo(this.x, this.y);
+                ctx.fillStyle = 'yellow';
+                ctx.fill();
+                ctx.closePath();
+            },
+            update() {
+                this.x += this.dx;
+                this.y += this.dy;
+
+                // Recolher Pac-Man se sair da tela
+                if (this.x > canvas.width - this.size) this.x = canvas.width - this.size;
+                if (this.x < this.size) this.x = this.size;
+                if (this.y > canvas.height - this.size) this.y = canvas.height - this.size;
+                if (this.y < this.size) this.y = this.size;
+            },
+            setDirection(dx, dy) {
+                this.dx = dx;
+                this.dy = dy;
+            }
+        };
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            pacMan.draw();
+            pacMan.update();
+            requestAnimationFrame(draw);
+        }
+
+        function move(direction) {
+            switch (direction) {
+                case 'left':
+                    pacMan.setDirection(-pacMan.speed, 0);
+                    break;
+                case 'up':
+                    pacMan.setDirection(0, -pacMan.speed);
+                    break;
+                case 'right':
+                    pacMan.setDirection(pacMan.speed, 0);
+                    break;
+                case 'down':
+                    pacMan.setDirection(0, pacMan.speed);
+                    break;
+            }
+        }
+
+        // Para o controle de touch-screen
+        window.addEventListener('touchstart', e => {
+            const touch = e.touches[0];
+            if (touch.clientX < canvas.width / 2) {
+                pacMan.setDirection(-pacMan.speed, 0);
+            } else {
+                pacMan.setDirection(pacMan.speed, 0);
+            }
+            if (touch.clientY < canvas.height / 2) {
+                pacMan.setDirection(0, -pacMan.speed);
+            } else {
+                pacMan.setDirection(0, pacMan.speed);
+            }
+        });
+
+        draw();
+    </script>
+</body>
+</html>
